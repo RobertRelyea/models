@@ -42,7 +42,6 @@ from official.resnet import imagenet_preprocessing
 from official.utils.misc import distribution_utils
 from official.utils.misc import model_helpers
 
-
 ################################################################################
 # Functions for input processing.
 ################################################################################
@@ -343,7 +342,7 @@ def resnet_model_fn(features, labels, mode, model_class,
 
   # Calculate loss, which includes softmax cross entropy and L2 regularization.
   cross_entropy = tf.losses.sparse_softmax_cross_entropy(
-      logits=logits, labels=labels)
+      logits=logits, labels=labels['head1'])
 
   # Create a tensor named cross_entropy for logging purposes.
   tf.identity(cross_entropy, name='cross_entropy')
@@ -414,9 +413,9 @@ def resnet_model_fn(features, labels, mode, model_class,
   else:
     train_op = None
 
-  accuracy = tf.metrics.accuracy(labels, predictions['classes'])
+  accuracy = tf.metrics.accuracy(labels['head1'], predictions['classes'])
   accuracy_top_5 = tf.metrics.mean(tf.nn.in_top_k(predictions=logits,
-                                                  targets=labels,
+                                                  targets=labels['head1'],
                                                   k=5,
                                                   name='top_5_op'))
   metrics = {'accuracy': accuracy,
@@ -480,8 +479,8 @@ def resnet_main(
   # Initializes model with all but the dense layer from pretrained ResNet.
   if flags_obj.pretrained_model_checkpoint_path is not None:
     warm_start_settings = tf.estimator.WarmStartSettings(
-        flags_obj.pretrained_model_checkpoint_path,
-        vars_to_warm_start='^(?!.*dense)')
+        flags_obj.pretrained_model_checkpoint_path)#,
+        #vars_to_warm_start='^(?!.*dense)')
   else:
     warm_start_settings = None
 
