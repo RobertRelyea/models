@@ -547,55 +547,26 @@ class Model(object):
       inputs = tf.identity(inputs, 'final_reduce_mean')
       inputs = tf.squeeze(inputs, axes)
 
-      # Batch normalization on CNN features
-      inputs = tf.layers.batch_normalization(inputs, axis=1, training=training)
-
-
-
-
-
       # FC 64
       uwb_dense1 = tf.contrib.layers.fully_connected(inputs=uwb_inputs, num_outputs=64,
-      activation_fn=tf.nn.relu)
+      activation_fn=tf.nn.sigmoid)
       uwb_dense1 = tf.identity(uwb_dense1, 'uwb_dense1')
       # FC 64
       uwb_dense2 = tf.contrib.layers.fully_connected(inputs=uwb_dense1, num_outputs=64,
-      activation_fn=tf.nn.relu)
-      uwb_dense2 = tf.layers.batch_normalization(uwb_dense2, axis=1, training=training)
+      activation_fn=tf.nn.sigmoid)
       uwb_dense2 = tf.identity(uwb_dense2, 'uwb_dense2')
-
-
-
-
-
-
-      # uwb_dense1 = tf.layers.dense(uwb_inputs, 64,tf.nn.relu)
-      # tf.identity(uwb_dense1, 'uwb_dense1')
-      # # Hidden fully connected layer with 256 neurons
-      # uwb_dense2 = tf.layers.dense(uwb_dense1, 64,tf.nn.relu)
-      # tf.identity(uwb_dense2, 'uwb_dense2')
 
       # FC 64
       mmWave_dense1 = tf.contrib.layers.fully_connected(inputs=mmWave_inputs, num_outputs=64)
       mmWave_dense1 = tf.identity(mmWave_dense1, 'mmWave_dense1')
       # FC 64
       mmWave_dense2 = tf.contrib.layers.fully_connected(inputs=mmWave_dense1, num_outputs=64)
-      mmWave_dense2 = tf.layers.batch_normalization(mmWave_dense2, axis=1, training=training)
       mmWave_dense2 = tf.identity(mmWave_dense2, 'mmWave_dense2')
 
-      dense_inputs = tf.concat([inputs, uwb_dense2], -1)
-      # dense_inputs = tf.concat([inputs, mmWave_dense2, uwb_dense2], -1)
+      dense_inputs = tf.concat([inputs, uwb_dense2, mmWave_dense2], -1)
+      # dense_inputs = tf.concat([mmWave_dense3, uwb_dense3], -1)
       # dense_inputs = uwb_dense2
       # dense_inputs = inputs
-      tf.identity(dense_inputs, 'dense_inputs')
-
-
-      dense_inputs = tf.contrib.layers.fully_connected(inputs=dense_inputs, num_outputs=512,
-      activation_fn=tf.nn.relu)
-      dense_inputs = tf.identity(dense_inputs, 'combined_dense')
-
-
-
 
 
       if self.multi_head:
